@@ -1,7 +1,3 @@
 # FFmpegGet
 
-* update in local
-
-* update in local second
-
-* update in github
+* FFmpeg使用指令 - FFmpeg-tutorial.md 
