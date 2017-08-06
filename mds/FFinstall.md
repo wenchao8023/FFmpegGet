@@ -13,7 +13,7 @@
 		
 	如果终端输出结果是：
 	
-	![brew输出信息](/Users/guowenchao/Desktop/Github/FFmpegGet/brew安装信息.png)
+	![brew输出信息](https://github.com/wenchao8023/FFmpegGet/blob/master/imgs/brew安装信息.png)
 
 2. 如果不是上面的结果就表示需要安装homebrew，命令行：
 
@@ -35,7 +35,7 @@
 		
 	输出结果如下：
 	
-	![FFmpeg信息](/Users/guowenchao/Desktop/Github/FFmpegGet/FFmpeg信息.png)
+	![FFmpeg信息](https://github.com/wenchao8023/FFmpegGet/blob/master/imgs/FFmpeg信息.png)
 	
 	图中有很多库，有红叉的表示没有安装上，绿叉表示安装上了
 	
