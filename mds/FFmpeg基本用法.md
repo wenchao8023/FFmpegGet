@@ -379,6 +379,32 @@ c\_amount  | 色彩强度		| -2.0-5.0，负数为模糊效果 | 1.0
 
 **【例子】**
 
-Logo在左上角
+* Logo在左上角
 
-	fmpeg -i pair.mp4 -i logo.png -filter_complex overlay pair1.mp4	
+		fmpeg -i pair.mp4 -i logo.png -filter_complex overlay pair1.mp4	
+	
+* Logo在右上角
+
+		ffmpeg -i pair.mp4 -i logo.png -filter_complex overlay=W-w  pair2.mp4
+		
+* Logo在左下角
+
+		ffmpeg -i pair.mp4 -i logo.png -filter_complex overlay=0:H-h  pair2.mp4
+		
+* Logo在右下角
+
+		ffmpeg -i pair.mp4 -i logo.png -filter_complex overlay=W-w:H-h  pair2.mp4
+		
+* 删除logo
+
+	语法：`-vf delogo=x:y:w:h[:t[:show]]`
+	
+	x:y 离左上角的坐标
+
+	w:h  logo的宽和高
+	
+	t: 矩形边缘的厚度默认值4
+	
+	show：若设置为1有一个绿色的矩形，默认值0.
+	
+		ffplay -i jidu.mp4 -vf delogo=50:51:60:60:100:0
