@@ -1,5 +1,6 @@
 # FFmpeg基本用法
 
+[参考链接](http://www.360doc.com/content/17/0804/14/46078576_676615270.shtml)
 ## 第一部分 基础
 
 **术语**
@@ -42,11 +43,11 @@ FFmpeg的名称来自MPEG视频编码标准，前面的“FF”代表“Fast For
 
 如testsrc视频按顺时针方向旋转90度
 
-`ffplay -f lavfi -i testsrc -vf transpose=1`
+`ffplay -i testsrc -vf transpose=1`
 
 如testsrc视频水平翻转(左右翻转)
 
-`ffplay -f lavfi -i testsrc -vf hflip`
+`ffplay -i testsrc -vf hflip`
 
 > 音频过滤器 -af
 
@@ -66,7 +67,7 @@ FFmpeg的名称来自MPEG视频编码标准，前面的“FF”代表“Fast For
 
 顺时针旋转90度并水平翻转
 
-`ffplay -f lavfi -i testsrc -vf transpose=1,hflip`
+`ffplay -i testsrc -vf transpose=1,hflip`
 
 基本步骤
 
@@ -91,7 +92,7 @@ Filtergraph的分类
 2. 复杂(complex）多对一， 多对多
 
 用ffplay直接观看结果：
-`fplay -f lavfi -i testsrc -vf split[a][b];[a]pad=2*iw[1];[b]hflip[2];[1][2]overlay=w`
+`fplay -i testsrc -vf split[a][b];[a]pad=2*iw[1];[b]hflip[2];[1][2]overlay=w`
 
 
 * F1: split过滤器创建两个输入文件的拷贝并标记为[a],[b]
@@ -142,9 +143,7 @@ Filtergraph的分类
 1. 用 -r 参数设置帧率。`ffmpeg –i input –r fps output`
 2. 用fps filter设置帧率。`ffmpeg -i clip.mpg -vf fps=fps=25 clip.webm`
 
-**码率**
-
-这三种方式都是设置29.97fps的码率
+这三种方式都是设置29.97fps的帧率
 
 ```
 ffmpeg -i input.avi -r 29.97 output.mpg
@@ -212,13 +211,13 @@ ffmpeg -i input.avi -fs 1024K output.mp4
 	
 	宽度固定400，高度成比例：
 		
-		ffmpeg -i input.avi -vf scale=400:400/a
-		ffmpeg -i input.avi -vf scale=400:-1
+		ffmpeg -i input.avi -vf scale=400:400/a output.mp4
+		ffmpeg -i input.avi -vf scale=400:-1 output.mp4
 		
 	相反地，高度固定300，宽度成比例：
 	
-		ffmpeg -i input.avi -vf scale=-1:300
-		ffmpeg -i input.avi -vf scale=300*a:300
+		ffmpeg -i input.avi -vf scale=-1:300 output.mp4
+		ffmpeg -i input.avi -vf scale=300*a:300 output.mp4
 	
 	
 ## 第五部分 裁剪/填充视频
@@ -228,6 +227,8 @@ ffmpeg -i input.avi -fs 1024K output.mp4
 * 从输入文件中选取你想要的矩形区域到输出文件中,常见用来去视频黑边。
 
 		crop:ow[:oh[:x[:y:[:keep_aspect]]]]
+		
+	四个参数含义：宽度、高度、x的位置、y的位置
 		
 * 裁剪输入视频的左三分之一，中间三分之一，右三分之一
 
@@ -243,8 +244,141 @@ ffmpeg -i input.avi -fs 1024K output.mp4
 
 	Ydefault  = ( input height - output height)/2
 	
-		ffmpeg -i input_file -v crop=w:h output_file
+		ffmpeg -i input_file -v crop=Xdefault:Ydefault output_file
 	
 	裁剪中间一半区域：
 	
 		ffmpeg -i input.avi -vf crop=iw/2:ih/2 output.avi
+		
+* 比较裁剪后的视频和源视频
+
+		ffplay -i jidu.mp4 -vf split[a][b];[a]drawbox=x=(iw-300)/2:(ih-300)/2:w=300:h=300:c=yellow[A];[A]pad=2*iw[C];[b]crop=300:300:(iw-300)/2:(ih-300)/2[B];[C][B]overlay=w*2.4:40
+		
+* 自动检测裁剪区域
+
+	cropdetect  filter 自动检测黑边区域
+	
+		ffplay jidu.mp4 -vf cropdetect
+		
+* 然后用检测到的值来裁剪视频
+
+		ffplay jidu.mp4 –vf crop=672:272:0:54
+		
+* 填充(pad)
+
+	在视频帧上增加一快额外额区域，经常用在播放的时候显示不同的横纵比
+	
+		pad=width[:height:[:x[:y:[:color]]]]
+		
+	五个参数含义：填充宽、填充高、填充x坐标、填充y坐标、填充颜色
+		
+		ffmpeg -i input_file -vf pad=860:660:30:30:pink outputFile
+		
+	* 填充图片
+
+		创建一个30个像素的粉色宽度来包围一个SVGA尺寸的图片：
+		
+			ffmpeg -i photo.jpg -vf pad=860:660:30:30:pink framed_photo.jpg
+			
+	* 填充视频
+
+			ffmpeg -i test.mp4 -vf pad=860:660:30:30:pink framed_video.mp4
+
+* `4:3 -> 16:9`
+
+	一些设备只能播放 `16:9` 的横纵比，`4:3`的横纵比必须在水平方向的两边填充成`16:9`，
+	
+	高度被保持，宽度等于高度乘以16/9，x（输入文件水平位移）值由表达式(output_width - input_width)/2来计算。
+	
+	* 4：3到16:9的通用命令是：
+
+			ffmpeg -i input -vf pad=ih*16/9:ih :(ow-iw)/2:0:color output
+		
+			ffplay -i testsrc -vf pad=ih*16/9:ih:(ow-iw)/2:0:pink
+			
+	* 16:9到4:3
+
+		为了用4:3的横纵比来显示16:9的横纵比，填充输入文件的垂直两边，宽度保持不变，高度是宽度的3/4，y值（输入文件的垂直偏移量）是由一个表达式（output_height-input_height）/2计算出来的。	
+		16:9到4:3的通用命令：
+
+			ffmpeg -i input -vf pad=iw :iw*3/4:0:(oh-ih)/2:color output
+			
+			ffplay -i testsrc=size=320x180 -vf pad=iw:iw*3/4:0:(oh-ih)/2:pink
+			
+			
+## 第六部分 翻转和旋转
+
+### 翻转
+
+* 水平翻转
+
+	语法：`-vf hflip`
+	
+		ffplay  -i testsrc -vf hflip
+			
+* 垂直翻转
+
+	语法：`-vf vflip`
+	
+		ffplay -i testsrc -vf vflip
+		
+### 旋转
+
+语法：transpose = 0 | 1 | 2 | 3
+
+参数 | 含义
+:--: | :--: 
+1 | 顺时针旋转90°
+3 | 顺时针旋转90°，然后水平翻转
+2 | 逆时针旋转90°
+0 | 逆时针旋转90°，然后垂直翻转
+
+
+## 第七部分	模糊和锐化
+
+### 模糊
+
+语法：`boxblur=luma_r:luma_p[:chroma_r:chram_p[:alpha_r:alpha_p]]`
+
+	ffplay -i testscr -vf boxblur=1:10:4:10
+
+参数 : luma_r和alpha_r半径取值范围是0~min(w,h)/2, chroma_r半径的取值范围是0~min(cw/ch)/2
+
+### 锐化
+
+语法：`-vf unsharp=l_msize_x:l_msize_y:l_amount:c_msize_x:c_msize_y:c_amount`
+
+所有的参数是可选的，默认值是5:5:1.0:5:5:0.0
+
+参数具体含义
+
+参数 | 含义 | 取值范围 | 默认值
+:--: | :--: | :--: | :--:
+l\_msize_x | 水平亮度矩阵 | 3-13 | 5
+l\_msize_y | 垂直亮度矩阵 | 3-13 | 5
+l\_amount  | 亮度强度		| -2.0-5.0，负数为模糊效果 | 1.0
+c\_msize_x | 水平色彩矩阵 | 3-13 | 5
+c\_msize_y | 垂直色彩矩阵 | 3-13 | 5
+c\_amount  | 色彩强度		| -2.0-5.0，负数为模糊效果 | 1.0
+
+**【例子】**
+
+使用默认值，亮度矩阵为5x5和亮度值为1.0
+
+	ffmpeg -i input -vf unsharp output.mp4
+	
+高斯模糊效果(比较强的模糊)：
+
+	ffplay -f lavfi -i testsrc -vf unsharp=13:13:-2
+	
+## 第八部分 覆盖（画中画）
+
+语法： `overlay[=x[:y]`
+
+参数都可选，默认值为0
+
+**【例子】**
+
+Logo在左上角
+
+	fmpeg -i pair.mp4 -i logo.png -filter_complex overlay pair1.mp4	
