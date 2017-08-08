@@ -401,10 +401,33 @@ c\_amount  | 色彩强度		| -2.0-5.0，负数为模糊效果 | 1.0
 	
 	x:y 离左上角的坐标
 
-	w:h  logo的宽和高
+	w:h logo的宽和高
 	
-	t: 矩形边缘的厚度默认值4
+	t:	 矩形边缘的厚度默认值4
 	
 	show：若设置为1有一个绿色的矩形，默认值0.
 	
 		ffplay -i jidu.mp4 -vf delogo=50:51:60:60:100:0
+		
+		
+## 第九部分 添加文本
+
+语法：`drawtext=fontfile=font_f:text=text1[:p3=v3[:p4=v4[…]]]`
+
+参数 | 含义 
+:--: | :-- 
+x | 离左上角的横坐标
+y | 离左上角的纵坐标
+fontcolor | 字体颜色
+fontsize | 字体大小
+text | 文本内容
+textfile | 文本文件
+t | 时间戳，单位秒
+n | 帧数开始位置为0
+draw/enable | 控制文件显示，若值为0不显示，1显示，可以使用函数
+
+**【例子】**
+
+1. 在左上角添加Welcome文字
+
+		ffplay -i color=c=white -vf drawtext=fontfile=arial.ttf:text=Welcome
