@@ -369,7 +369,7 @@ c\_amount  | 色彩强度		| -2.0-5.0，负数为模糊效果 | 1.0
 	
 高斯模糊效果(比较强的模糊)：
 
-	ffplay -f lavfi -i testsrc -vf unsharp=13:13:-2
+	ffplay -i testsrc -vf unsharp=13:13:-2
 	
 ## 第八部分 覆盖（画中画）
 

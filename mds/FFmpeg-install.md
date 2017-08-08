@@ -26,6 +26,30 @@
 
 		brew cleanup
 		
+4. 使用brew安装软件，比如 git
+
+		brew install git
+		
+5. 使用brew卸载软件
+
+		 brew uninstall git
+		 
+6. 使用brew查询软件
+
+		brew search git
+		
+7. 其他brew命令
+
+		brew list       列出已安装的软件
+
+		brew update     更新brew
+		
+		brew home       用浏览器打开brew的官方网站
+		
+		brew info       显示软件信息
+		
+		brew deps       显示包依赖
+		
 ### 二、安装FFmpeg
 
 1. 利用上面的 homebrew 安装 FFmpeg：
@@ -84,3 +108,6 @@
 	安装 yasm 库，输入命令：
 		
 		brew install yasm
+
+
+
